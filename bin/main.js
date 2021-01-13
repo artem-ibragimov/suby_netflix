@@ -43,14 +43,16 @@ class Popup {
     show(data) {
         return new Promise((resolve, reject) => {
             const [onKeyUp] = this.listenPopupCloseEvents(resolve, reject);
-            this.el = this.createPopupElement(this.getContent(data));
-            this.el.addEventListener('keyup', onKeyUp);
-            document.body.appendChild(this.el);
+            this.overlay = this.createOverlayElement();
+            this.popup = this.createPopupElement(this.getContent(data));
+            this.popup.addEventListener('keyup', onKeyUp);
+            this.overlay.appendChild(this.popup);
+            document.body.appendChild(this.overlay);
             this.listenUserActions().then(resolve, reject);
         });
     }
     close() {
-        this.el?.remove();
+        this.overlay?.remove();
     }
     listenPopupCloseEvents(resolve, reject) {
         const dispose = () => {
@@ -59,7 +61,7 @@ class Popup {
             reject(new Error('No value'));
         };
         const onClickOutSide = (e) => {
-            if (this.el && e.composedPath().includes(this.el)) {
+            if (this.popup && e.composedPath().includes(this.popup)) {
                 return;
             }
             dispose();
@@ -75,25 +77,30 @@ class Popup {
         document.addEventListener('keyup', onKeyUp);
         return [onKeyUp];
     }
-    createPopupElement(html) {
-        const div = document.createElement('div');
-        div.setAttribute('style', `
-         background: #eee;
-         border: 1px solid #ccc;
-         border-radius: 5px;
-         position: absolute;
-         max-height: 200px;
-         max-width: 500px;
+    createOverlayElement() {
+        const overlay = document.createElement('div');
+        overlay.setAttribute('style', `position: fixed;
+         display:flex;
+         justify-content: center;
+         align-items: center;
          z-index: 99999;
-         padding: 10px;
-         margin: auto;
          bottom: 0;
          right: 0;
          left: 0;
-         top: 0;
-      `);
-        html.forEach((child) => { div.appendChild(child); });
-        return div;
+         top: 0; `);
+        return overlay;
+    }
+    createPopupElement(html) {
+        const popup = document.createElement('div');
+        popup.setAttribute('style', `background: #eee;
+         border: 1px solid #ccc;
+         border-radius: 5px;
+         position: absolute;
+         width: 500px;
+         padding: 10px;
+         margin: auto;`);
+        html.forEach((child) => { popup.appendChild(child); });
+        return popup;
     }
 }
 
@@ -107,50 +114,51 @@ class SearchPopup extends Popup {
             this.search_results.innerHTML = data.map(generateListItem).join('\n');
         };
         this.listenUserActions = () => new Promise((resolve) => {
-            if (!this.search_fied) {
+            if (!this.search_field) {
                 return resolve('');
             }
             let prev_value = '';
-            this.search_fied.addEventListener('keyup', (e) => {
-                if (this.search_fied.value === prev_value) {
+            this.search_field.addEventListener('keyup', (e) => {
+                if (this.search_field.value === prev_value) {
                     return;
                 }
-                prev_value = this.search_fied.value;
+                prev_value = this.search_field.value;
                 clearTimeout(this.timeoutID);
                 this.timeoutID = setTimeout(() => {
-                    this.update(this.search_fied.value).then(() => { this.initHotKeys(resolve); });
+                    this.update(this.search_field.value).then(() => { this.initHotKeys(resolve); });
                 }, this.request_interval);
             });
-            this.search_fied?.focus();
+            this.search_field?.focus();
         }).then((v) => {
             this.close();
             return v;
         });
     }
     getContent() {
-        this.search_fied = document.createElement('input');
-        this.search_fied.classList.add('QuickLink__SearchPopup__search_field');
-        this.search_fied.setAttribute('data-replace', 'disable');
-        this.search_fied.setAttribute('autofocus', 'true');
-        this.search_fied.setAttribute('placeholder', 'Search links');
-        this.search_fied.setAttribute('style', `display: block;
+        this.search_field = document.createElement('input');
+        this.search_field.classList.add('QuickLink__SearchPopup__search_field');
+        this.search_field.setAttribute('data-replace', 'disable');
+        this.search_field.setAttribute('autofocus', 'true');
+        this.search_field.setAttribute('placeholder', 'Search links');
+        this.search_field.setAttribute('style', `display: block;
          width: 100%;
          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-         letter-spacing: .01em;
-         height: 2.25em;
-         border: 1px solid #ccc;
          box-shadow: inset 0 1px 3px #ddd;
+         letter-spacing: .01em;
+         border: 1px solid #ccc;
          box-sizing: border-box;
          border-radius: 3px;
          text-transform: none;
-         font-size: 100%;
          line-height: 1.15;
          margin-right: 5px;
          padding: 4px; `);
         this.search_results = document.createElement('div');
         this.search_results.classList.add('QuickLink__SearchPopup__results_list');
-        this.search_results.setAttribute('style', `display:flex; flex-direction: column; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;`);
-        return [this.search_fied, this.search_results];
+        this.search_results.setAttribute('style', `flex-direction: column;
+         cursor: pointer;
+         display:flex;
+      `);
+        return [this.search_field, this.search_results];
     }
     initHotKeys(resolve) {
         this.search_results.addEventListener('click', (e) => {
@@ -165,8 +173,8 @@ class SearchPopup extends Popup {
             return;
         }
         let offset = 0;
-        const select_current = () => { links[offset].setAttribute('style', SELECTED_A_STYLE); };
-        const unselect_current = () => { links[offset].setAttribute('style', DEFAULT_A_STYLE); };
+        const select_current = () => { links[offset].parentElement?.setAttribute('style', SELECTED_A_STYLE); };
+        const unselect_current = () => { links[offset].parentElement?.setAttribute('style', DEFAULT_A_STYLE); };
         select_current();
         document.addEventListener('keyup', onKeyDown);
         function onKeyDown(e) {
@@ -198,17 +206,16 @@ class SearchPopup extends Popup {
     }
 }
 const DEFAULT_A_STYLE = `
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 justify-content: space-between;
-font-size: 1.1em;
-cursor: pointer;
 display: flex;
-padding: 4px;
-color: #222;
-`;
-const SELECTED_A_STYLE = DEFAULT_A_STYLE + 'font-weight: 500; background: #ddd; color:#000;';
-const generateListItem = ({ title, url }) => `<div style="${DEFAULT_A_STYLE}" >
-      <span style="flex-grow:1" data="<a href='${url}'>${title}</a>">${title}</span>
+color: #111;`;
+const SELECTED_A_STYLE = `
+${DEFAULT_A_STYLE}
+font-weight: 700;
+background: #ddd;`;
+const generateListItem = ({ title, url }) => `<div style="${DEFAULT_A_STYLE}">
+      <span style="font-size: 16px; padding: 0 4px; flex-grow: 1;"
+            data="<a href='${url}'>${title}</a>">${title}</span>
       <a href="${url}" target="blank">↗️</a>
    </div>`;
 

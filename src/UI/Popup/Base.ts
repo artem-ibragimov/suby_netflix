@@ -1,6 +1,7 @@
 export default abstract class Popup<T> {
    protected update: (v: string) => Promise<void>;
-   protected el?: HTMLDivElement;
+   protected overlay?: HTMLDivElement;
+   protected popup?: HTMLDivElement;
 
    constructor(update: (v: string) => Promise<T>, protected request_interval: number) {
       this.update = (v: string) => update(v).then(this.updateContent);
@@ -9,15 +10,17 @@ export default abstract class Popup<T> {
    show(data: string): Promise<string> {
       return new Promise((resolve, reject) => {
          const [onKeyUp] = this.listenPopupCloseEvents(resolve, reject);
-         this.el = this.createPopupElement(this.getContent(data));
-         this.el.addEventListener('keyup', onKeyUp);
-         document.body.appendChild(this.el);
+         this.overlay = this.createOverlayElement();
+         this.popup = this.createPopupElement(this.getContent(data));
+         this.popup.addEventListener('keyup', onKeyUp);
+         this.overlay.appendChild(this.popup);
+         document.body.appendChild(this.overlay);
          this.listenUserActions().then(resolve, reject);
       });
    }
 
    close() {
-      this.el?.remove();
+      this.overlay?.remove();
    }
 
    private listenPopupCloseEvents(resolve: (v: string) => void, reject: (e: Error) => void) {
@@ -27,7 +30,7 @@ export default abstract class Popup<T> {
          reject(new Error('No value'));
       };
       const onClickOutSide = (e: MouseEvent) => {
-         if (this.el && e.composedPath().includes(this.el)) { return; }
+         if (this.popup && e.composedPath().includes(this.popup)) { return; }
          dispose();
       };
       document.addEventListener('click', onClickOutSide);
@@ -43,25 +46,32 @@ export default abstract class Popup<T> {
 
    protected listenUserActions = () => Promise.resolve('');
 
-   protected createPopupElement(html: HTMLElement[]): HTMLDivElement {
-      const div = document.createElement('div');
-      div.setAttribute('style', `
-         background: #eee;
-         border: 1px solid #ccc;
-         border-radius: 5px;
-         position: absolute;
-         max-height: 200px;
-         max-width: 500px;
+   private createOverlayElement(): HTMLDivElement {
+      const overlay = document.createElement('div');
+      overlay.setAttribute('style',
+         `position: fixed;
+         display:flex;
+         justify-content: center;
+         align-items: center;
          z-index: 99999;
-         padding: 10px;
-         margin: auto;
          bottom: 0;
          right: 0;
          left: 0;
-         top: 0;
-      `);
-      html.forEach((child) => { div.appendChild(child); });
-      return div;
+         top: 0; `);
+      return overlay;
+   }
+   private createPopupElement(html: HTMLElement[]): HTMLDivElement {
+      const popup = document.createElement('div');
+      popup.setAttribute('style',
+         `background: #eee;
+         border: 1px solid #ccc;
+         border-radius: 5px;
+         position: absolute;
+         width: 500px;
+         padding: 10px;
+         margin: auto;`);
+      html.forEach((child) => { popup.appendChild(child); });
+      return popup;
    }
 
    protected abstract getContent(data: string): HTMLElement[];
