@@ -79,26 +79,30 @@ class Popup {
     }
     createOverlayElement() {
         const overlay = document.createElement('div');
-        overlay.setAttribute('style', `position: fixed;
-         display:flex;
-         justify-content: center;
+        overlay.setAttribute('style', `justify-content: center;
          align-items: center;
+         position: fixed;
          z-index: 99999;
+         display: flex;
          bottom: 0;
          right: 0;
          left: 0;
-         top: 0; `);
+         top: 0;
+         `);
         return overlay;
     }
     createPopupElement(html) {
         const popup = document.createElement('div');
-        popup.setAttribute('style', `background: #eee;
+        popup.setAttribute('style', `
          border: 1px solid #ccc;
          border-radius: 5px;
          position: absolute;
-         width: 500px;
+         line-height: 1 !important;
+         background: #eee;
          padding: 10px;
-         margin: auto;`);
+         margin: auto;
+         width: 500px;
+         `);
         html.forEach((child) => { popup.appendChild(child); });
         return popup;
     }
@@ -140,17 +144,16 @@ class SearchPopup extends Popup {
         this.search_field.setAttribute('data-replace', 'disable');
         this.search_field.setAttribute('autofocus', 'true');
         this.search_field.setAttribute('placeholder', 'Search links');
-        this.search_field.setAttribute('style', `display: block;
+        this.search_field.setAttribute('style', `
+         margin: 0 !important;
+         height: 25px;
          width: 100%;
-         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
          box-shadow: inset 0 1px 3px #ddd;
          letter-spacing: .01em;
          border: 1px solid #ccc;
          box-sizing: border-box;
          border-radius: 3px;
          text-transform: none;
-         line-height: 1.15;
-         margin-right: 5px;
          padding: 4px; `);
         this.search_results = document.createElement('div');
         this.search_results.classList.add('QuickLink__SearchPopup__results_list');
@@ -207,6 +210,7 @@ class SearchPopup extends Popup {
 }
 const DEFAULT_A_STYLE = `
 justify-content: space-between;
+padding: 3px;
 display: flex;
 color: #111;`;
 const SELECTED_A_STYLE = `
@@ -216,7 +220,22 @@ background: #ddd;`;
 const generateListItem = ({ title, url }) => `<div style="${DEFAULT_A_STYLE}">
       <span style="font-size: 16px; padding: 0 4px; flex-grow: 1;"
             data="<a href='${url}'>${title}</a>">${title}</span>
-      <a href="${url}" target="blank">↗️</a>
+      <a href="${url}" target="blank">
+         <img
+            draggable="false"
+            role="img"
+            style="display: inline !important;
+               border: none !important;
+               box-shadow: none !important;
+               height: 18px !important;
+               width: 18px !important;
+               margin: 0 2px !important;
+               vertical-align: -0.1em !important;
+               background: none !important;
+               padding: 0 !important;"
+            alt="↗️"
+            src="https://s.w.org/images/core/emoji/13.0.1/svg/2197.svg">
+      </a>
    </div>`;
 
 var DATA_SOURCE_TYPE;

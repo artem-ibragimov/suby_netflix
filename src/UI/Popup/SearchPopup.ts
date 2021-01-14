@@ -11,17 +11,16 @@ export default class SearchPopup extends Popup<IData> {
       this.search_field.setAttribute('autofocus', 'true');
       this.search_field.setAttribute('placeholder', 'Search links');
       this.search_field.setAttribute('style',
-         `display: block;
+         `
+         margin: 0 !important;
+         height: 25px;
          width: 100%;
-         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
          box-shadow: inset 0 1px 3px #ddd;
          letter-spacing: .01em;
          border: 1px solid #ccc;
          box-sizing: border-box;
          border-radius: 3px;
          text-transform: none;
-         line-height: 1.15;
-         margin-right: 5px;
          padding: 4px; `
       );
 
@@ -100,6 +99,7 @@ export default class SearchPopup extends Popup<IData> {
 
 const DEFAULT_A_STYLE = `
 justify-content: space-between;
+padding: 3px;
 display: flex;
 color: #111;`;
 
@@ -112,5 +112,20 @@ const generateListItem = ({ title, url }: { title: string, url: string; }) =>
    `<div style="${DEFAULT_A_STYLE}">
       <span style="font-size: 16px; padding: 0 4px; flex-grow: 1;"
             data="<a href='${url}'>${title}</a>">${title}</span>
-      <a href="${url}" target="blank">↗️</a>
+      <a href="${url}" target="blank">
+         <img
+            draggable="false"
+            role="img"
+            style="display: inline !important;
+               border: none !important;
+               box-shadow: none !important;
+               height: 18px !important;
+               width: 18px !important;
+               margin: 0 2px !important;
+               vertical-align: -0.1em !important;
+               background: none !important;
+               padding: 0 !important;"
+            alt="↗️"
+            src="https://s.w.org/images/core/emoji/13.0.1/svg/2197.svg">
+      </a>
    </div>`;

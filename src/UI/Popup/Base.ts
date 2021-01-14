@@ -49,27 +49,31 @@ export default abstract class Popup<T> {
    private createOverlayElement(): HTMLDivElement {
       const overlay = document.createElement('div');
       overlay.setAttribute('style',
-         `position: fixed;
-         display:flex;
-         justify-content: center;
+         `justify-content: center;
          align-items: center;
+         position: fixed;
          z-index: 99999;
+         display: flex;
          bottom: 0;
          right: 0;
          left: 0;
-         top: 0; `);
+         top: 0;
+         `);
       return overlay;
    }
    private createPopupElement(html: HTMLElement[]): HTMLDivElement {
       const popup = document.createElement('div');
       popup.setAttribute('style',
-         `background: #eee;
+         `
          border: 1px solid #ccc;
          border-radius: 5px;
          position: absolute;
-         width: 500px;
+         line-height: 1 !important;
+         background: #eee;
          padding: 10px;
-         margin: auto;`);
+         margin: auto;
+         width: 500px;
+         `);
       html.forEach((child) => { popup.appendChild(child); });
       return popup;
    }
