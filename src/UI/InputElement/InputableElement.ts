@@ -9,7 +9,7 @@ export default class InputableElement extends BaseElement<HTMLTextAreaElement> {
 
    async replace(data: IWordData) {
       const selected = this.el.value.slice(0, this.el.selectionEnd || void 0);
-      const replaced = await replaceLastWord(selected, data);
+      const replaced = await replaceLastWord(selected, data, { wrap_link: /textarea/i.test(this.el.nodeName) });
       const not_selected = this.el.value.slice(this.el.selectionEnd || void 0);
       const no_marker = !replaced.includes(CURSOR_MARKER);
       this.el.value = `${replaced}${no_marker ? CURSOR_MARKER : ''}${not_selected}`;

@@ -4,13 +4,13 @@ export default class DataStorage {
       this.sources = sources.filter<IDataSource>((s): s is IDataSource => s !== null);
    }
 
-   async get(key: string) {
-      return this.sources.find((source) => source.has(key))?.get(key)
+   async get(key: string, params?: object) {
+      return this.sources.find((source) => source.has(key))?.get(key, params)
          || Promise.reject(new Error('key is not found'));
    }
 }
 
 interface IDataSource {
    has(key: string): boolean;
-   get(key: string): Promise<string> | void;
+   get(key: string, params?: object): Promise<string> | void;
 }

@@ -15,11 +15,6 @@ import { isReplacable as isReplaceable, start } from '~/App/start';
    }
 
    const data = new DataStorage([WordPressLinks.from(settings.shortcuts, settings.application.request_interval)]);
-
-   document
-      .querySelectorAll<HTMLDivElement>('div.frame-content')
-      .forEach((el) => { el.addEventListener('keyup', onKeyUp); });
-
    document.addEventListener('keyup', onKeyUp);
 
    async function onKeyUp(e: KeyboardEvent) {

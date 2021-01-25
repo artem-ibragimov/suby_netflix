@@ -36,14 +36,14 @@ export function getLastWord(s: string): string {
    return SEPARATORS.reduce(f, txt);
 }
 
-export function replaceLastWord(s: string, data: IWordData) {
+export function replaceLastWord(s: string, data: IWordData, params: object = {}) {
    const key = getLastWord(s);
-   return data.get(key).then((value) =>
+   return data.get(key, params).then((value) =>
       s.slice(0, s.lastIndexOf(key)) +
       value +
       s.slice(s.lastIndexOf(key) + key.length)
    ).catch(() => s);
 }
 
-export type IWordData = { get(k: string): Promise<string>; };
+export type IWordData = { get(k: string, params: object): Promise<string>; };
 type ISymSet = { NB_SPACE: string, NEW_LINE: string; };

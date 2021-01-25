@@ -61,9 +61,10 @@ export default class SearchPopup extends Popup<IData> {
 
    protected initHotKeys(resolve: (v: string) => void) {
       this.search_results.addEventListener('click', (e: MouseEvent) => {
-         if (!(e.target as HTMLElement).hasAttribute('data')) { return; };
+         if (!(e.target as HTMLElement).hasAttribute('wrapped_url')) { return; };
          document.removeEventListener('keyup', onKeyDown);
-         resolve((e.target as HTMLElement).getAttribute('data') || '');
+         const url = (e.target as HTMLElement).getAttribute(this.wrap_link ? 'wrapped_url' : 'url') || '';
+         resolve(url);
       });
 
       const links = Array.from(this.search_results.querySelectorAll('span'));
@@ -71,15 +72,11 @@ export default class SearchPopup extends Popup<IData> {
       let offset = 0;
       const select_current = () => { links[offset].parentElement?.setAttribute('style', SELECTED_A_STYLE); };
       const unselect_current = () => { links[offset].parentElement?.setAttribute('style', DEFAULT_A_STYLE); };
-
-      select_current();
-      document.addEventListener('keyup', onKeyDown);
-
-
-      function onKeyDown(e: KeyboardEvent) {
+      const onKeyDown = (e: KeyboardEvent) => {
          if (e.code === 'Enter') {
             document.removeEventListener('keyup', onKeyDown);
-            resolve(links[offset].getAttribute('data') || '');
+            const url = links[offset].getAttribute(this.wrap_link ? 'wrapped_url' : 'url') || '';
+            resolve(url);
             return;
          }
          if (e.code !== 'ArrowDown' && e.code !== 'ArrowUp') {
@@ -94,6 +91,8 @@ export default class SearchPopup extends Popup<IData> {
          if (offset < 0) { offset += links.length; }
          select_current();
       };
+      select_current();
+      document.addEventListener('keyup', onKeyDown);
    }
 }
 
@@ -110,8 +109,12 @@ background: #ddd;`;
 
 const generateListItem = ({ title, url }: { title: string, url: string; }) =>
    `<div style="${DEFAULT_A_STYLE}">
-      <span style="font-size: 16px; padding: 0 4px; flex-grow: 1;"
-            data="<a href='${url}'>${title}</a>">${title}</span>
+      <span
+         style="font-size: 16px; padding: 0 4px; flex-grow: 1;"
+         url="${url}"
+         wrapped_url="<a href='${url}'>${title}</a>">
+         ${title}
+      </span>
       <a href="${url}" target="blank">
          <img
             draggable="false"

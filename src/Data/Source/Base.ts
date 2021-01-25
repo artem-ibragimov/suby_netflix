@@ -36,7 +36,7 @@ export default abstract class DataSource<
       return shortcut in this.data;
    }
 
-   abstract get(shortcut: keyof DataType): Promise<ReturnType>;
+   abstract get(shortcut: keyof DataType, params?: IParams): Promise<ReturnType>;
 
    protected abstract onload(shortcut: keyof DataType, data: UpdateType): void;
 
@@ -49,9 +49,14 @@ export default abstract class DataSource<
 export interface IDataSource<DataType, ReturnType> {
    load(key: keyof DataType, options: IRequestOptions): Promise<void>;
    has(key: keyof DataType): boolean;
-   get(key: keyof DataType): Promise<ReturnType>;
+   get(key: keyof DataType, params?: IParams): Promise<ReturnType>;
 }
 interface IRequestOptions extends RequestInit {
    url: string,
    method?: 'GET' | 'POST';
+}
+
+export interface IParams {
+   /** Wrap url into HTMLAnchorElement */
+   wrap_link: boolean;
 }

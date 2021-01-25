@@ -3,7 +3,11 @@ export default abstract class Popup<T> {
    protected overlay?: HTMLDivElement;
    protected popup?: HTMLDivElement;
 
-   constructor(update: (v: string) => Promise<T>, protected request_interval: number) {
+   constructor(
+      update: (v: string) => Promise<T>,
+      protected request_interval: number,
+      protected wrap_link: boolean = true
+   ) {
       this.update = (v: string) => update(v).then(this.updateContent);
    }
 
@@ -52,7 +56,7 @@ export default abstract class Popup<T> {
          `justify-content: center;
          align-items: center;
          position: fixed;
-         z-index: 99999;
+         z-index: 999999;
          display: flex;
          bottom: 0;
          right: 0;

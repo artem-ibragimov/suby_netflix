@@ -34,9 +34,16 @@ class DataSource {
     }
 }
 
+var DATA_SOURCE_TYPE;
+(function (DATA_SOURCE_TYPE) {
+    DATA_SOURCE_TYPE["WordPress"] = "WordPress";
+})(DATA_SOURCE_TYPE || (DATA_SOURCE_TYPE = {}));
+const DATA_SOURCE_TYPES = [DATA_SOURCE_TYPE.WordPress];
+
 class Popup {
-    constructor(update, request_interval) {
+    constructor(update, request_interval, wrap_link = true) {
         this.request_interval = request_interval;
+        this.wrap_link = wrap_link;
         this.listenUserActions = () => Promise.resolve('');
         this.update = (v) => update(v).then(this.updateContent);
     }
@@ -82,7 +89,7 @@ class Popup {
         overlay.setAttribute('style', `justify-content: center;
          align-items: center;
          position: fixed;
-         z-index: 99999;
+         z-index: 999999;
          display: flex;
          bottom: 0;
          right: 0;
@@ -165,11 +172,12 @@ class SearchPopup extends Popup {
     }
     initHotKeys(resolve) {
         this.search_results.addEventListener('click', (e) => {
-            if (!e.target.hasAttribute('data')) {
+            if (!e.target.hasAttribute('wrapped_url')) {
                 return;
             }
             document.removeEventListener('keyup', onKeyDown);
-            resolve(e.target.getAttribute('data') || '');
+            const url = e.target.getAttribute(this.wrap_link ? 'wrapped_url' : 'url') || '';
+            resolve(url);
         });
         const links = Array.from(this.search_results.querySelectorAll('span'));
         if (links.length === 0) {
@@ -178,12 +186,11 @@ class SearchPopup extends Popup {
         let offset = 0;
         const select_current = () => { links[offset].parentElement?.setAttribute('style', SELECTED_A_STYLE); };
         const unselect_current = () => { links[offset].parentElement?.setAttribute('style', DEFAULT_A_STYLE); };
-        select_current();
-        document.addEventListener('keyup', onKeyDown);
-        function onKeyDown(e) {
+        const onKeyDown = (e) => {
             if (e.code === 'Enter') {
                 document.removeEventListener('keyup', onKeyDown);
-                resolve(links[offset].getAttribute('data') || '');
+                const url = links[offset].getAttribute(this.wrap_link ? 'wrapped_url' : 'url') || '';
+                resolve(url);
                 return;
             }
             if (e.code !== 'ArrowDown' && e.code !== 'ArrowUp') {
@@ -205,7 +212,9 @@ class SearchPopup extends Popup {
                 offset += links.length;
             }
             select_current();
-        }
+        };
+        select_current();
+        document.addEventListener('keyup', onKeyDown);
     }
 }
 const DEFAULT_A_STYLE = `
@@ -218,8 +227,12 @@ ${DEFAULT_A_STYLE}
 font-weight: 700;
 background: #ddd;`;
 const generateListItem = ({ title, url }) => `<div style="${DEFAULT_A_STYLE}">
-      <span style="font-size: 16px; padding: 0 4px; flex-grow: 1;"
-            data="<a href='${url}'>${title}</a>">${title}</span>
+      <span
+         style="font-size: 16px; padding: 0 4px; flex-grow: 1;"
+         url="${url}"
+         wrapped_url="<a href='${url}'>${title}</a>">
+         ${title}
+      </span>
       <a href="${url}" target="blank">
          <img
             draggable="false"
@@ -238,21 +251,15 @@ const generateListItem = ({ title, url }) => `<div style="${DEFAULT_A_STYLE}">
       </a>
    </div>`;
 
-var DATA_SOURCE_TYPE;
-(function (DATA_SOURCE_TYPE) {
-    DATA_SOURCE_TYPE["WordPress"] = "WordPress";
-})(DATA_SOURCE_TYPE || (DATA_SOURCE_TYPE = {}));
-const DATA_SOURCE_TYPES = [DATA_SOURCE_TYPE.WordPress];
-
 class WordPressLinks extends DataSource {
     constructor(configs, request_interval) {
         super(Object.fromEntries(configs.map(({ shortcut }) => [shortcut, []])));
         this.request_interval = request_interval;
         this.settings = Object.fromEntries(configs.map((cfg) => [cfg.shortcut, cfg]));
     }
-    get(shortcut) {
+    get(shortcut, { wrap_link }) {
         const update = (query) => this.update(shortcut, query).then(() => this.data[shortcut]);
-        return new SearchPopup(update, this.request_interval).show('');
+        return new SearchPopup(update, this.request_interval, wrap_link).show('');
     }
     async update(shortcut, query) {
         if (!query) {
@@ -296,8 +303,8 @@ class DataStorage {
     constructor(sources) {
         this.sources = sources.filter((s) => s !== null);
     }
-    async get(key) {
-        return this.sources.find((source) => source.has(key))?.get(key)
+    async get(key, params) {
+        return this.sources.find((source) => source.has(key))?.get(key, params)
             || Promise.reject(new Error('key is not found'));
     }
 }
@@ -366,9 +373,9 @@ function getLastWord(s) {
     const f = (s, sep) => s?.split(sep).reverse().find((w) => w !== '') || '';
     return SEPARATORS.reduce(f, txt);
 }
-function replaceLastWord(s, data) {
+function replaceLastWord(s, data, params = {}) {
     const key = getLastWord(s);
-    return data.get(key).then((value) => s.slice(0, s.lastIndexOf(key)) +
+    return data.get(key, params).then((value) => s.slice(0, s.lastIndexOf(key)) +
         value +
         s.slice(s.lastIndexOf(key) + key.length)).catch(() => s);
 }
@@ -493,7 +500,7 @@ class InputableElement extends CustomElement {
     }
     async replace(data) {
         const selected = this.el.value.slice(0, this.el.selectionEnd || void 0);
-        const replaced = await replaceLastWord(selected, data);
+        const replaced = await replaceLastWord(selected, data, { wrap_link: /textarea/i.test(this.el.nodeName) });
         const not_selected = this.el.value.slice(this.el.selectionEnd || void 0);
         const no_marker = !replaced.includes(CURSOR_MARKER);
         this.el.value = `${replaced}${no_marker ? CURSOR_MARKER : ''}${not_selected}`;
@@ -566,9 +573,6 @@ const DEFAULT_SETTINGS = {
         return;
     }
     const data = new DataStorage([WordPressLinks.from(settings.shortcuts, settings.application.request_interval)]);
-    document
-        .querySelectorAll('div.frame-content')
-        .forEach((el) => { el.addEventListener('keyup', onKeyUp); });
     document.addEventListener('keyup', onKeyUp);
     async function onKeyUp(e) {
         if (e.code !== 'Space' && e.key !== 'Enter' || !isReplacable(e.target)) {

@@ -1,7 +1,6 @@
-import BaseSource from '~/Data/Source/Base';
-import SearchPopup from '~/UI/Popup/SearchPopup';
+import BaseSource, { IParams } from '~/Data/Source/Base';
 import { DATA_SOURCE_TYPE } from '~/Data/Source/const';
-import { ISettings } from '~/page/options/UserStorage';
+import SearchPopup from '~/UI/Popup/SearchPopup';
 
 type UpdateType = { title: string, url: string; }[];
 type DataType = { [key: string]: UpdateType; };
@@ -15,9 +14,9 @@ export default class WordPressLinks extends BaseSource<DataType, ReturnType, Upd
       this.settings = Object.fromEntries(configs.map((cfg) => [cfg.shortcut, cfg]));
    }
 
-   get(shortcut: keyof DataType) {
+   get(shortcut: keyof DataType, { wrap_link }: IParams) {
       const update = (query: string) => this.update(shortcut, query).then(() => this.data[shortcut]);
-      return new SearchPopup(update, this.request_interval).show('');
+      return new SearchPopup(update, this.request_interval, wrap_link).show('');
    }
 
    async update(shortcut: keyof DataType, query: string) {
@@ -69,3 +68,4 @@ export const EMPTY_SHORTCUT_CONFIG: IShortcutConfig = {
    pages: 1,
    url: '',
 };
+
