@@ -50,11 +50,10 @@ export default class EditableElement extends BaseElement<HTMLDivElement> {
    private setCaret() {
       const cursorNode = findNodeIncludes(this.el, CURSOR_MARKER);
       const pos = cursorNode?.textContent?.indexOf(CURSOR_MARKER) || 0;
-      if (cursorNode) {
-         cursorNode.textContent = cursorNode.textContent?.replace(new RegExp(CURSOR_MARKER, 'gi'), '') || '';
-      }
+      if (!cursorNode) { return; }
+      cursorNode.textContent = cursorNode.textContent?.replace(new RegExp(CURSOR_MARKER, 'gi'), '') || '';
       const range = document.createRange();
-      cursorNode && range.setStart(cursorNode, pos);
+      range.setStart(cursorNode, pos);
       range.collapse(true);
 
       const sel = window.getSelection();
