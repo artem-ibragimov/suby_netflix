@@ -11,6 +11,10 @@ body {
    background: #eee;
 }
 
+input {
+   transition-duration: 1s;
+}
+
 button {
    cursor: pointer;
 }

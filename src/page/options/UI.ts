@@ -1,16 +1,21 @@
 import { IApplicationConfig, DEFAULT_APP_CONFIG } from '~/App/start';
 import { DATA_SOURCE_TYPE, DATA_SOURCE_TYPES } from '~/Data/Source/const';
-import { IShortcutConfig, DEFAULT_SHORTCUT_CONFIG, EMPTY_SHORTCUT_CONFIG } from '~/Data/Source/WordPressLinks';
-
+import WordPressLinks, { IShortcutConfig, DEFAULT_SHORTCUT_CONFIG, EMPTY_SHORTCUT_CONFIG } from '~/Data/Source/WordPressLinks';
+enum COLOR {
+   GREEN = '#f0fff0',
+   RED = '#ffe7e7'
+}
 export class LinksEditor {
    constructor(
       private container: HTMLDivElement,
       private addBtn: HTMLButtonElement
    ) {
       this.renderFields = this.renderFields.bind(this);
+      this.onFieldInput = this.onFieldInput.bind(this);
       this.createEmptyField = this.createEmptyField.bind(this);
       this.addBtn.addEventListener('click', this.createEmptyField);
       this.container.addEventListener('click', removeShortCut);
+      this.container.addEventListener('input', this.onFieldInput);
    }
 
    render(configs: IShortcutConfig[]) {
@@ -49,15 +54,15 @@ export class LinksEditor {
    private renderFields(
       cfg?: Partial<IShortcutConfig>,
    ) {
-      const shortcutEl = createFieldContainer([
+      const fieldContainer = createFieldContainer([
          this.createTypeSelect(DATA_SOURCE_TYPES, cfg?.sourceType),
          ...this.createLinkParams(cfg),
          createRemoveBtn()
       ]);
-      shortcutEl.classList.add('shortcut_fields');
-      this.container.appendChild(shortcutEl);
+      this.validateFieldContainer(fieldContainer);
+      fieldContainer.classList.add('shortcut_fields');
+      this.container.appendChild(fieldContainer);
    }
-
 
    private createTypeSelect(options: DATA_SOURCE_TYPE[], selectedDataSourceType?: DATA_SOURCE_TYPE) {
       const selectLinkType = document.createElement('select');
@@ -68,10 +73,8 @@ export class LinksEditor {
             option.innerText = link_type;
             if (link_type === selectedDataSourceType) { option.selected = true; }
             return option;
-         }).forEach((option) => {
-            selectLinkType.appendChild(option);
-         });
-
+         })
+         .forEach((option) => { selectLinkType.appendChild(option); });
       return selectLinkType;
    }
 
@@ -96,6 +99,23 @@ export class LinksEditor {
       perPageEl.setAttribute('min', '1');
       if (per_page) { perPageEl.value = `${per_page}`; }
       return [shortcutEl, urlEl, perPageEl];
+   }
+
+   private onFieldInput(e: Event): void {
+      const field = (<HTMLInputElement> e.target);
+      const data_type = field.getAttribute('data');
+      if (data_type !== 'url' && data_type !== 'dataSourceType') { return; }
+      this.validateFieldContainer(field.parentElement);
+   }
+
+   private validateFieldContainer(container: HTMLElement | null) {
+      if (!container) { return; }
+      const sourceType_field = container.querySelector('[data=dataSourceType]') as HTMLSelectElement;
+      const url_field = container.querySelector('[data=url]') as HTMLInputElement;
+      if (sourceType_field.value !== DATA_SOURCE_TYPE.WordPress || !url_field.value) { return; }
+      WordPressLinks.checkURL(url_field.value)
+         .then(() => { highlight(url_field, COLOR.GREEN); })
+         .catch(() => { highlight(url_field, COLOR.RED); });
    }
 }
 
@@ -165,9 +185,13 @@ function removeShortCut(e: MouseEvent) {
    (e.target as HTMLButtonElement).parentElement?.remove();
 }
 
-function createFieldContainer(childs: HTMLElement[]) {
+function createFieldContainer(childs: HTMLElement[]): HTMLDivElement {
    const div = document.createElement('div');
    div.classList.add('flex', 'full_width', 'content-end', 'padding-top');
    childs.forEach((c) => { div.appendChild(c); });
    return div;
+}
+
+function highlight(el: HTMLElement, color: string) {
+   el.style.background = color;
 }

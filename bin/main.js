@@ -1,8 +1,5 @@
 'use strict';
 
-const DEFAULT_REQUEST_OPTIONS = {
-    url: '/',
-};
 class DataSource {
     constructor(default_data) {
         this.default_data = default_data;
@@ -11,19 +8,23 @@ class DataSource {
         this.data = default_data;
     }
     async load(shortcut, request_options) {
-        this.request_options = {
-            ...DEFAULT_REQUEST_OPTIONS,
-            ...request_options
-        };
+        return DataSource.request(request_options)
+            .then((data) => this.onload(shortcut, data))
+            .catch(this.onerror);
+    }
+    static request(request_options) {
         return new Promise((resolve) => {
             // @ts-ignore
             chrome.runtime.sendMessage({
-                url: this.request_options.url,
-                options: this.request_options
+                url: request_options.url,
+                options: request_options
             }, resolve);
-        })
-            .then((data) => this.onload(shortcut, data))
-            .catch(this.onerror);
+        }).then((res) => {
+            if (Object.keys(res).length === 0) {
+                throw new Error('Failed to load');
+            }
+            return res;
+        });
     }
     has(shortcut) {
         return shortcut in this.data;
@@ -38,7 +39,7 @@ var DATA_SOURCE_TYPE;
 (function (DATA_SOURCE_TYPE) {
     DATA_SOURCE_TYPE["WordPress"] = "WordPress";
 })(DATA_SOURCE_TYPE || (DATA_SOURCE_TYPE = {}));
-const DATA_SOURCE_TYPES = [DATA_SOURCE_TYPE.WordPress];
+[DATA_SOURCE_TYPE.WordPress];
 
 class Popup {
     constructor(update, request_interval, wrap_link = true) {
@@ -251,6 +252,7 @@ const generateListItem = ({ title, url }) => `<div style="${DEFAULT_A_STYLE}">
       </a>
    </div>`;
 
+const WP_API = '/wp-json/wp/v2/search?';
 class WordPressLinks extends DataSource {
     constructor(configs, request_interval) {
         super(Object.fromEntries(configs.map(({ shortcut }) => [shortcut, []])));
@@ -266,7 +268,15 @@ class WordPressLinks extends DataSource {
             return Promise.resolve();
         }
         return this.load(shortcut, {
-            url: createURL(this.settings[shortcut], query),
+            url: WordPressLinks.createURL(this.settings[shortcut], query),
+        });
+    }
+    static createURL({ url, per_page, pages }, query) {
+        return `${url}${WP_API}search=${query}&per_page=${per_page}&page=${pages}`;
+    }
+    static checkURL(url) {
+        return DataSource.request({
+            url: this.createURL({ ...EMPTY_SHORTCUT_CONFIG, url }, ''),
         });
     }
     onload(shortcut, data) {
@@ -279,10 +289,6 @@ class WordPressLinks extends DataSource {
         }
         return new WordPressLinks(wpSettings, request_interval);
     }
-}
-const WP_API = '/wp-json/wp/v2/search?';
-function createURL({ url, per_page, pages }, query) {
-    return `${url}${WP_API}search=${query}&per_page=${per_page}&page=${pages}`;
 }
 const DEFAULT_SHORTCUT_CONFIG = {
     sourceType: DATA_SOURCE_TYPE.WordPress,

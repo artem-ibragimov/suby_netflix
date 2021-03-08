@@ -7,7 +7,7 @@ export default abstract class DataSource<
    UpdateType = Record<string, string>,
    > implements IDataSource<DataType, ReturnType>{
    protected data: DataType;
-   private request_options!: IRequestOptions;
+
 
    constructor(protected readonly default_data: DataType) {
       this.onerror = this.onerror.bind(this);
@@ -16,20 +16,24 @@ export default abstract class DataSource<
    }
 
    async load(shortcut: keyof DataType, request_options: IRequestOptions) {
-      this.request_options = {
-         ...DEFAULT_REQUEST_OPTIONS,
-         ...request_options
-      };
-
-      return new Promise<UpdateType>((resolve) => {
-         // @ts-ignore
-         chrome.runtime.sendMessage({
-            url: this.request_options.url,
-            options: this.request_options
-         }, resolve);
-      })
+      return DataSource.request<UpdateType>(request_options)
          .then((data) => this.onload(shortcut, data))
          .catch(this.onerror);
+   }
+
+   static request<T = void>(request_options: IRequestOptions): Promise<T> {
+      return new Promise<T>((resolve) => {
+         // @ts-ignore
+         chrome.runtime.sendMessage({
+            url: request_options.url,
+            options: request_options
+         }, resolve);
+      }).then((res) => {
+         if (Object.keys(res).length === 0) {
+            throw new Error('Failed to load');
+         }
+         return res;
+      });
    }
 
    has(shortcut: keyof DataType) {
@@ -37,7 +41,6 @@ export default abstract class DataSource<
    }
 
    abstract get(shortcut: keyof DataType, params?: IParams): Promise<ReturnType>;
-
    protected abstract onload(shortcut: keyof DataType, data: UpdateType): void;
 
    private onerror(e: Error) {
