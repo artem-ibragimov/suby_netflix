@@ -15,7 +15,11 @@ export default class EditableElement extends BaseElement<HTMLDivElement> {
    async replace(data: IWordData) {
       const range = window.getSelection()?.getRangeAt(0);
       const html = await this.replaceNodeContent(data, range);
-      this.el.innerHTML = typeof html === 'string' ? html || this.el.innerHTML : await this.replaceSelectedContent(data, range);
+      if (html === '') {
+         this.value = this.el.innerHTML;
+         return;
+      }
+      this.el.innerHTML = typeof html === 'string' ? html : await this.replaceSelectedContent(data, range);
       this.setCaret();
       this.value = this.el.innerHTML;
    }
