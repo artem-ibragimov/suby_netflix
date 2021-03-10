@@ -38,7 +38,7 @@ var DATA_SOURCE_TYPE;
 (function (DATA_SOURCE_TYPE) {
     DATA_SOURCE_TYPE["WordPress"] = "WordPress";
 })(DATA_SOURCE_TYPE || (DATA_SOURCE_TYPE = {}));
-const DATA_SOURCE_TYPES = [DATA_SOURCE_TYPE.WordPress];
+[DATA_SOURCE_TYPE.WordPress];
 
 class Popup {
     constructor(update, request_interval, wrap_link = true) {
@@ -291,13 +291,13 @@ const DEFAULT_SHORTCUT_CONFIG = {
     per_page: 5,
     pages: 1
 };
-const EMPTY_SHORTCUT_CONFIG = {
+({
     sourceType: DATA_SOURCE_TYPE.WordPress,
     shortcut: '',
     per_page: 5,
     pages: 1,
     url: '',
-};
+});
 
 class DataStorage {
     constructor(sources) {
