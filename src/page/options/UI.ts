@@ -1,10 +1,9 @@
-import { IApplicationConfig, DEFAULT_APP_CONFIG } from '~/App/start';
+import { DEFAULT_APP_CONFIG, IApplicationConfig } from '~/App/start';
 import { DATA_SOURCE_TYPE, DATA_SOURCE_TYPES } from '~/Data/Source/const';
-import WordPressLinks, { IShortcutConfig, DEFAULT_SHORTCUT_CONFIG, EMPTY_SHORTCUT_CONFIG } from '~/Data/Source/WordPressLinks';
-enum COLOR {
-   GREEN = '#f0fff0',
-   RED = '#ffe7e7'
-}
+import WordPressLinks, { DEFAULT_SHORTCUT_CONFIG, EMPTY_SHORTCUT_CONFIG, IShortcutConfig } from '~/Data/Source/WordPressLinks';
+import { COLOR, highlight } from '~/page/options/higtlight';
+import * as tooltip from '~/page/options/tooltip';
+
 export class LinksEditor {
    constructor(
       private container: HTMLDivElement,
@@ -43,8 +42,11 @@ export class LinksEditor {
 
    private removeFields() {
       this.container
-         .querySelectorAll('div.shortcut_fields')
-         .forEach((el) => { el.remove(); });
+         .querySelectorAll<HTMLElement>('div.shortcut_fields')
+         .forEach((el) => {
+            tooltip.remove(el);
+            el.remove();
+         });
    }
 
    private createEmptyField() {
@@ -54,11 +56,13 @@ export class LinksEditor {
    private renderFields(
       cfg?: Partial<IShortcutConfig>,
    ) {
+      const [shortcutEl, urlEl, perPageEl] = this.createLinkParams(cfg);
       const fieldContainer = createFieldContainer([
          this.createTypeSelect(DATA_SOURCE_TYPES, cfg?.sourceType),
-         ...this.createLinkParams(cfg),
+         shortcutEl, urlEl, perPageEl,
          createRemoveBtn()
       ]);
+      tooltip.init(urlEl);
       this.validateFieldContainer(fieldContainer);
       fieldContainer.classList.add('shortcut_fields');
       this.container.appendChild(fieldContainer);
@@ -83,12 +87,14 @@ export class LinksEditor {
       shortcutEl.setAttribute('data', 'shortcut');
       shortcutEl.setAttribute('placeholder', 'shortcut, e.x link:');
       shortcutEl.setAttribute('type', 'text');
+      shortcutEl.classList.add('smooth');
       if (shortcut) { shortcutEl.value = shortcut; }
 
       const urlEl = document.createElement('input');
       urlEl.setAttribute('data', 'url');
       urlEl.setAttribute('placeholder', 'url, e.x. https://wordpress.org/');
       urlEl.setAttribute('type', 'url');
+      urlEl.classList.add('smooth');
       if (url) { urlEl.value = url; }
 
       const perPageEl = document.createElement('input');
@@ -97,7 +103,9 @@ export class LinksEditor {
       perPageEl.setAttribute('type', 'number');
       perPageEl.setAttribute('max', '10');
       perPageEl.setAttribute('min', '1');
+      perPageEl.classList.add('smooth');
       if (per_page) { perPageEl.value = `${per_page}`; }
+
       return [shortcutEl, urlEl, perPageEl];
    }
 
@@ -114,8 +122,14 @@ export class LinksEditor {
       const url_field = container.querySelector('[data=url]') as HTMLInputElement;
       if (sourceType_field.value !== DATA_SOURCE_TYPE.WordPress || !url_field.value) { return; }
       WordPressLinks.checkURL(url_field.value)
-         .then(() => { highlight(url_field, COLOR.GREEN); })
-         .catch(() => { highlight(url_field, COLOR.RED); });
+         .then(() => {
+            highlight(url_field, COLOR.GREEN);
+            tooltip.hide(url_field);
+         })
+         .catch(() => {
+            highlight(url_field, COLOR.RED);
+            tooltip.show(url_field, 'The URL does not use the WordPress REST API');
+         });
    }
 }
 
@@ -168,7 +182,6 @@ export class AppConfigEditor {
       origin_el.setAttribute('placeholder', 'use one line per URL');
       origin_el.setAttribute('type', 'text');
       origin_el.value = origins.join('\n');
-
       return [origin_el];
    }
 }
@@ -182,7 +195,10 @@ function createRemoveBtn() {
 
 function removeShortCut(e: MouseEvent) {
    if (!(e.target as HTMLButtonElement)?.classList.contains('remove_button')) { return; }
-   (e.target as HTMLButtonElement).parentElement?.remove();
+   const root = (e.target as HTMLButtonElement).parentElement;
+   if (!root) { return; }
+   root.querySelectorAll('input').forEach((child) => { tooltip.remove(child); });
+   root.remove();
 }
 
 function createFieldContainer(childs: HTMLElement[]): HTMLDivElement {
@@ -190,8 +206,4 @@ function createFieldContainer(childs: HTMLElement[]): HTMLDivElement {
    div.classList.add('flex', 'full_width', 'content-end', 'padding-top');
    childs.forEach((c) => { div.appendChild(c); });
    return div;
-}
-
-function highlight(el: HTMLElement, color: string) {
-   el.style.background = color;
 }

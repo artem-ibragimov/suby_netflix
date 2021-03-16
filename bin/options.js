@@ -366,6 +366,51 @@ var COLOR;
     COLOR["GREEN"] = "#f0fff0";
     COLOR["RED"] = "#ffe7e7";
 })(COLOR || (COLOR = {}));
+function highlight(el, color) {
+    el.style.background = color;
+}
+
+function init(el) {
+    const guid = `tooltip_${Math.random().toPrecision(7).replace('.', '')}`;
+    const span = document.createElement('span');
+    span.setAttribute('hidden', 'true');
+    span.classList.add('tooltiptext', guid);
+    el.classList.add('tooltip', guid);
+    document.body.appendChild(span);
+}
+function show(el, tooltip) {
+    const span = findTooltip(el);
+    if (!span) {
+        return;
+    }
+    span.innerHTML = tooltip;
+    span.removeAttribute('hidden');
+    span.setAttribute('style', `top: ${el.offsetTop + el.clientHeight + 6}px;
+      left: ${el.offsetLeft}px;
+      width: ${el.offsetWidth}px;`);
+}
+function hide(el) {
+    const span = findTooltip(el);
+    if (!span) {
+        return;
+    }
+    span.setAttribute('hidden', 'true');
+}
+function remove(el) {
+    const span = findTooltip(el);
+    if (!span) {
+        return;
+    }
+    span.remove();
+}
+function findTooltip(el) {
+    const guid = Array.from(el.classList.values()).find((c) => c.includes('tooltip_'));
+    if (!guid) {
+        return;
+    }
+    return document.querySelector(`span.${guid}`);
+}
+
 class LinksEditor {
     constructor(container, addBtn) {
         this.container = container;
@@ -398,17 +443,22 @@ class LinksEditor {
     removeFields() {
         this.container
             .querySelectorAll('div.shortcut_fields')
-            .forEach((el) => { el.remove(); });
+            .forEach((el) => {
+            remove(el);
+            el.remove();
+        });
     }
     createEmptyField() {
         this.renderFields({ per_page: 5, pages: 1 });
     }
     renderFields(cfg) {
+        const [shortcutEl, urlEl, perPageEl] = this.createLinkParams(cfg);
         const fieldContainer = createFieldContainer([
             this.createTypeSelect(DATA_SOURCE_TYPES, cfg?.sourceType),
-            ...this.createLinkParams(cfg),
+            shortcutEl, urlEl, perPageEl,
             createRemoveBtn()
         ]);
+        init(urlEl);
         this.validateFieldContainer(fieldContainer);
         fieldContainer.classList.add('shortcut_fields');
         this.container.appendChild(fieldContainer);
@@ -433,6 +483,7 @@ class LinksEditor {
         shortcutEl.setAttribute('data', 'shortcut');
         shortcutEl.setAttribute('placeholder', 'shortcut, e.x link:');
         shortcutEl.setAttribute('type', 'text');
+        shortcutEl.classList.add('smooth');
         if (shortcut) {
             shortcutEl.value = shortcut;
         }
@@ -440,6 +491,7 @@ class LinksEditor {
         urlEl.setAttribute('data', 'url');
         urlEl.setAttribute('placeholder', 'url, e.x. https://wordpress.org/');
         urlEl.setAttribute('type', 'url');
+        urlEl.classList.add('smooth');
         if (url) {
             urlEl.value = url;
         }
@@ -449,6 +501,7 @@ class LinksEditor {
         perPageEl.setAttribute('type', 'number');
         perPageEl.setAttribute('max', '10');
         perPageEl.setAttribute('min', '1');
+        perPageEl.classList.add('smooth');
         if (per_page) {
             perPageEl.value = `${per_page}`;
         }
@@ -472,8 +525,14 @@ class LinksEditor {
             return;
         }
         WordPressLinks.checkURL(url_field.value)
-            .then(() => { highlight(url_field, COLOR.GREEN); })
-            .catch(() => { highlight(url_field, COLOR.RED); });
+            .then(() => {
+            highlight(url_field, COLOR.GREEN);
+            hide(url_field);
+        })
+            .catch(() => {
+            highlight(url_field, COLOR.RED);
+            show(url_field, 'The URL does not use the WordPress REST API');
+        });
     }
 }
 class AppConfigEditor {
@@ -531,16 +590,18 @@ function removeShortCut(e) {
     if (!e.target?.classList.contains('remove_button')) {
         return;
     }
-    e.target.parentElement?.remove();
+    const root = e.target.parentElement;
+    if (!root) {
+        return;
+    }
+    root.querySelectorAll('input').forEach((child) => { remove(child); });
+    root.remove();
 }
 function createFieldContainer(childs) {
     const div = document.createElement('div');
     div.classList.add('flex', 'full_width', 'content-end', 'padding-top');
     childs.forEach((c) => { div.appendChild(c); });
     return div;
-}
-function highlight(el, color) {
-    el.style.background = color;
 }
 
 class UserStorage {
