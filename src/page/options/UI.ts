@@ -179,7 +179,7 @@ export class AppConfigEditor {
    private createAppParams({ origins }: IApplicationConfig) {
       const origin_el = document.createElement('textarea');
       origin_el.setAttribute('data', 'origins');
-      origin_el.setAttribute('placeholder', 'use one line per URL');
+      origin_el.setAttribute('placeholder', 'Leave empty to enable the extension on all URLs\nSet a URL per line to enable it only on specific domains');
       origin_el.setAttribute('type', 'text');
       origin_el.value = origins.join('\n');
       return [origin_el];
