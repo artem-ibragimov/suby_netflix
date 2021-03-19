@@ -6,6 +6,8 @@ type UpdateType = { title: string, url: string; }[];
 type DataType = { [key: string]: UpdateType; };
 type ReturnType = string;
 
+const WP_API = '/wp-json/wp/v2/search?';
+
 export default class WordPressLinks extends BaseSource<DataType, ReturnType, UpdateType> {
    private settings: Record<string, IShortcutConfig>;
 
@@ -22,7 +24,17 @@ export default class WordPressLinks extends BaseSource<DataType, ReturnType, Upd
    async update(shortcut: keyof DataType, query: string) {
       if (!query) { return Promise.resolve(); }
       return this.load(shortcut, {
-         url: createURL(this.settings[shortcut], query),
+         url: WordPressLinks.createURL(this.settings[shortcut], query),
+      });
+   }
+
+   static createURL({ url, per_page, pages }: IShortcutConfig, query: string) {
+      return `${url}${WP_API}search=${query}&per_page=${per_page}&page=${pages}`;
+   }
+
+   static checkURL(url: string) {
+      return BaseSource.request({
+         url: this.createURL({ ...EMPTY_SHORTCUT_CONFIG, url }, ''),
       });
    }
 
@@ -37,12 +49,6 @@ export default class WordPressLinks extends BaseSource<DataType, ReturnType, Upd
       }
       return new WordPressLinks(wpSettings, request_interval);
    }
-}
-
-const WP_API = '/wp-json/wp/v2/search?';
-
-function createURL({ url, per_page, pages }: IShortcutConfig, query: string) {
-   return `${url}${WP_API}search=${query}&per_page=${per_page}&page=${pages}`;
 }
 
 export interface IShortcutConfig {

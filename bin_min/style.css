@@ -11,6 +11,10 @@ body {
    background: #eee;
 }
 
+.smooth {
+   transition-duration: 1s;
+}
+
 button {
    cursor: pointer;
 }
@@ -138,4 +142,24 @@ button b {
 textarea {
    min-height: 125px;
    padding   : .5em .6em;
+}
+
+
+.tooltiptext {
+   width                       : 200px;
+   text-align                  : center;
+   border-radius               : 3px;
+   padding                     : 5px;
+   /* background-color         : #fff; */
+   /* border                   : 2px solid #ccc; */
+   /* box-shadow               : inset 0 1px 3px #ddd; */
+   background-color            : #444444;
+   color                       : #efefef;
+   /* Position the tooltip */
+   position                    : absolute;
+   z-index                     : 1;
+   box-sizing                  : border-box;
+   /* top                      : 100%; */
+   /* right                    : 0; */
+   /* margin-left              : -60px; */
 }

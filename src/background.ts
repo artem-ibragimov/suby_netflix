@@ -3,7 +3,7 @@
 chrome.runtime.onMessage.addListener((
    { url, options }: { url: string; options: RequestInit; },
    _sender: object,
-   sendResponse: (res: Response) => void) => {
+   sendResponse: (res: any) => void) => {
    fetch(url, options)
       .then((res: Response) => res.json())
       .then(sendResponse, sendResponse);
