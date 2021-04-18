@@ -1,0 +1,58 @@
+"<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<tt xmlns:tt="http://www.w3.org/ns/ttml" xmlns:ttm="http://www.w3.org/ns/ttml#metadata" xmlns:ttp="http://www.w3.org/ns/ttml#parameter" xmlns:tts="http://www.w3.org/ns/ttml#styling" ttp:tickRate="10000000" ttp:timeBase="media" xmlns="http://www.w3.org/ns/ttml">
+<head>
+<ttp:profile use="http://netflix.com/ttml/profile/dfxp-ls-sdh"/>
+<styling>
+<style tts:backgroundColor="transparent" tts:textAlign="center" xml:id="style0"/>
+<style tts:color="white" tts:fontSize="100%" tts:fontWeight="normal" xml:id="style1"/>
+<style tts:color="white" tts:fontSize="100%" tts:fontStyle="italic" tts:fontWeight="normal" xml:id="style2"/>
+</styling>
+<layout>
+<region tts:displayAlign="after" xml:id="region0"/>
+</layout>
+</head>
+<body>
+<div xml:space="preserve">
+<p begin="73750000t" end="107916667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle0"><span style="style1">ОРИГИНАЛЬНЫЙ СЕРИАЛ NETFLIX</span></p>
+<p begin="1250000000t" end="1265000000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle1"><span style="style1">Не твой сегодня день, а?</span></p>
+<p begin="1805833334t" end="1816250000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle2"><span style="style1">Что вам принести?</span></p>
+<p begin="1826666667t" end="1843333334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle3"><span style="style1">Покажи, где дом войта.</span></p>
+<p begin="1844166667t" end="1868333334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle4"><span style="style1">- По переулку и налево...</span><br/><span style="style1">- Айседора.</span></p>
+<p begin="1937083334t" end="1956666667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle5"><span style="style1">Тебе здесь не рады, ведьмак.</span></p>
+<p begin="1966666667t" end="1976666667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle6"><span style="style1">Войт.</span></p>
+<p begin="1983750000t" end="2007916667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle7"><span style="style1">Скажи, где он, и я уйду.</span></p>
+<p begin="2018750000t" end="2039166667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle8"><span style="style1">Ты тут не приказываешь, мутант.</span></p>
+<p begin="2047916667t" end="2063333334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle9"><span style="style1">Уродливый ты сукин сын.</span></p>
+<p begin="2092083334t" end="2100833334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle10"><span style="style1">Слышал?</span></p>
+<p begin="2113750000t" end="2122083334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle11"><span style="style1">Ты уйдешь.</span></p>
+<p begin="2124583334t" end="2154166667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle12"><span style="style1">Либо сам, либо тебя выволокут. Выбирай.</span></p>
+<p begin="2168333334t" end="2178750000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle13"><span style="style1">Нетрудный выбор.</span></p>
+<p begin="2182916667t" end="2212500000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle14"><span style="style1">Нахер. Завалите его голыми руками,</span><br/><span style="style1">и дело с концом.</span></p>
+<p begin="2230833334t" end="2255833334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle15"><span style="style1">Ну что, ведьмак. Ты же нас не боишься?</span></p>
+<p begin="2285000000t" end="2315000000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle16"><span style="style1">- Покажи, чему обучен.</span><br/><span style="style1">- Да оставь ты его в покое.</span></p>
+<p begin="2382916667t" end="2410833334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle17"><span style="style1">- Ведьмакам нельзя доверять.</span><br/><span style="style1">- Я не тебе говорю.</span></p>
+<p begin="2430833334t" end="2458333334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle18"><span style="style1">Прошу прощения за поведение</span><br/><span style="style1">моего человека.</span></p>
+<p begin="2482916667t" end="2515000000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle19"><span style="style1">Надеюсь, к завтрашней ярмарке</span><br/><span style="style1">он над ним поработает.</span></p>
+<p begin="2537500000t" end="2550416667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle20"><span style="style1">Извини, Ренфри.</span></p>
+<p begin="2582916667t" end="2595000000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle21"><span style="style1">Пошли, ребята.</span></p>
+<p begin="2616666667t" end="2636250000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle22"><span style="style1">По пиву для меня и моего друга.</span></p>
+<p begin="2678333334t" end="2701250000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle23"><span style="style1">Я вам говорю, добрый господин.</span></p>
+<p begin="2835416667t" end="2846666667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle24"><span style="style1">Завтракать будете?</span></p>
+<p begin="2868333334t" end="2878333334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle25"><span style="style1">Я наелся.</span></p>
+<p begin="2897500000t" end="2906250000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle26"><span style="style1">Дичью.</span></p>
+<p begin="3138333334t" end="3164583334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle27"><span style="style1">Матушка, упокой ее душу,</span><br/><span style="style1">сгорела бы со стыда.</span></p>
+<p begin="3178333334t" end="3190416667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle28"><span style="style1">Мы никому не скажем.</span></p>
+<p begin="3282083334t" end="3304166667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle29"><span style="style1">Зачем явился в Блавикен, беловолосый?</span></p>
+<p begin="3308333334t" end="3321666667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle30"><span style="style1">За чудищем?</span></p>
+<p begin="3331250000t" end="3346666667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle31"><span style="style1">Я ехал болотом.</span></p>
+<p begin="3347500000t" end="3380416667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle32"><span style="style1">Ну и сам виноват.</span><br/><span style="style1">Почему не поехать нормальным трактом?</span></p>
+<p begin="3396250000t" end="3413333334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle33"><span style="style1">Там на жизнь не заработаешь.</span></p>
+<p begin="3422083334t" end="3445416667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle34"><span style="style1">А тебе очень нужно купить новую одежду.</span></p>
+<p begin="3502500000t" end="3512500000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle35"><span style="style1">Еще по пиву.</span></p>
+<p begin="3681666667t" end="3707083334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle36"><span style="style1">Все чаще и чаще</span><br/><span style="style1">я встречаю монстров на пути.</span></p>
+<p begin="3837500000t" end="3856666667t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle37"><span style="style1">И сколько монет за кикимору?</span></p>
+<p begin="4000833334t" end="4022500000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle38"><span style="style1">Я сегодня утром убила крысу вилкой.</span></p>
+<p begin="4029583334t" end="4049583334t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle39"><span style="style1">Прямо в толстое пузо.</span></p>
+<p begin="4055416667t" end="4077500000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle40"><span style="style1">Мать чуть не лишилась чувств.</span><br/><span style="style1">А что делать?</span></p>
+<p begin="4078333334t" end="4100000000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle41"><span style="style1">Крыса уже неделю срала в кладовке.</span></p>
+<p begin="4147916667t" end="4170000000t" region="region0" style="style0" tts:extent="80.00% 80.00%" tts:origin="10.00% 10.00%" xml:id="subtitle42"><…"

@@ -1,15 +1,7 @@
-import nodeResolve from '@rollup/plugin-node-resolve';
-import commonJs from '@rollup/plugin-commonjs';
-import typeScript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
+import { plugins as dev_plugins, output } from './rollup.config';
 
-const output = { dir: 'bin_min', format: 'cjs' };
-const plugins = [
-   nodeResolve(),
-   commonJs(),
-   typeScript({ tsconfig: "tsconfig.json" }),
-   terser(), // minification
-];
+const plugins = dev_plugins.concat([terser()]);
 
 export default [{
    input: ['src/page/options.ts'],

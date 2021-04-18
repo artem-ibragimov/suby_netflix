@@ -1,12 +1,23 @@
-// https://www.chromium.org/Home/chromium-security/extension-content-script-fetches#TOC-2.-Avoid-Cross-Origin-Fetches-in-Content-Scripts
-// @ts-ignore
-chrome.runtime.onMessage.addListener((
-   { url, options }: { url: string; options: RequestInit; },
-   _sender: object,
-   sendResponse: (res: any) => void) => {
-   fetch(url, options)
-      .then((res: Response) => res.json())
-      .then(sendResponse, sendResponse);
+import * as subs from 'src/subs';
 
-   return true;
+// @ts-ignore
+chrome.webRequest.onCompleted.addListener((details) => {
+   if (details.initiator === location.origin) { return; }
+   fetch(details.url)
+      .then((res) => res.text())
+      .then(subs.parse)
+      .then(sendToOpenedTab)
+      .catch(console.error);
+}, {
+   types: ['xmlhttprequest'],
+   urls: ['https:\/\/*.oca.nflxvideo.net/?*']
 });
+
+function sendToOpenedTab(message: any) {
+   // @ts-ignore
+   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length === 0) { return; }
+      // @ts-ignore
+      chrome.tabs.sendMessage(tabs[0].id, message);
+   });
+}
