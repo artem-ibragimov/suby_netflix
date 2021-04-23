@@ -9,10 +9,6 @@ export const plugins = [
     typeScript({ tsconfig: "tsconfig.json" }),
 ];
 export default [{
-    input: ['src/page/options.ts'],
-    output,
-    plugins
-}, {
     input: ['src/background.ts', 'src/main.ts'],
     output,
     plugins

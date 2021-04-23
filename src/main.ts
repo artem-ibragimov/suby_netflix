@@ -1,9 +1,17 @@
-import { ISubs } from './subs';
+import { PlayerComponent } from 'src/components/PlayerCmp';
+import { UserActions } from 'src/components/UserActions';
+import { PlayerController } from 'src/core/PlayerCtrl';
 
-(async function () {
-   // @ts-ignore
-   chrome.runtime.onMessage.addListener((subs: ISubs, _sender, sendResponse) => {
-      debugger;
-      return true;
-   });
-})();
+window.onload = () => {
+   /** hide original captions */
+   document.head.innerHTML += '<style>.player-timedtext { visibility: hidden; } </style>';
+   const rewind = () => { document.querySelector<HTMLButtonElement>('.button-nfplayerBackTen')?.click(); };
+   const player_ctrl = new PlayerController(rewind);
+   const player_cmp = new PlayerComponent('div.VideoContainer video');
+   player_cmp.on('onseeked', player_ctrl.onseeked);
+   player_cmp.on('timeupdate', player_ctrl.timeupdate);
+   player_ctrl.on('state_change', player_cmp.state_change);
+
+   const user_actions = new UserActions();
+   user_actions.on('stepback', player_ctrl.stepback);
+};
