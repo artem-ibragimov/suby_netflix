@@ -1,8 +1,8 @@
 {
     "manifest_version": 2,
     "author": "artem.ibragimov",
-    "name": "Suby",
-    "description": "Adaptive subtitles",
+    "name": "Netflix subs",
+    "description": "Adaptive subs for Netflix",
     "version": "0.0.1",
     "permissions": [
         "webRequest",
@@ -10,8 +10,10 @@
     ],
     "icons": {
         "16": "./asset/i16.png",
+        "32": "./asset/i32.png",
         "48": "./asset/i48.png",
-        "128": "./asset/i128.png"
+        "128": "./asset/i128.png",
+        "225": "./asset/i225.png"
     },
     "background": {
         "scripts": [
@@ -22,13 +24,12 @@
     "content_scripts": [
         {
             "matches": [
-                "<all_urls>"
+                "https://www.netflix.com/*"
             ],
             "all_frames": true,
             "js": [
                 "main.js"
             ]
         }
-    ],
-    "options_page": "options.html"
+    ]
 }

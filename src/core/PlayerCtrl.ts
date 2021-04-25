@@ -1,12 +1,13 @@
 import { EventBus } from 'src/core/EventBus';
 
-export class PlayerController extends EventBus<Action, Partial<IState>> {
+const MS = 1000;
+export class PlayerController extends EventBus<Action, Partial<IVisibilityState>> {
    /** Step size in seconds */
    private step_size: number = 10;
    /** Timestamp before rewind */
    private end_timestamp: number = 0;
    private start_timestamp: number = 0;
-
+   private rewind_timeout?: NodeJS.Timeout;
    private state: IState = {
       video: { timestamp: 0 },
       primary_sub: { is_visible: false },
@@ -19,34 +20,34 @@ export class PlayerController extends EventBus<Action, Partial<IState>> {
    ) {
       super();
       this.stepback = this.stepback.bind(this);
-      this.onseeked = this.onseeked.bind(this);
       this.timeupdate = this.timeupdate.bind(this);
+      this.stepback_second = this.stepback_second.bind(this);
    }
 
    stepback() {
-      this.start_timestamp = this.state.video.timestamp - this.step_size;
       if (this.end_timestamp < this.state.video.timestamp) {
-         this.stepback_first(this.start_timestamp);
+         this.stepback_first();
          return;
       }
-      this.stepback_second(this.start_timestamp);
+      this.stepback_second();
    }
 
-   private stepback_first(timestamp: number) {
+   private stepback_first() {
       this.end_timestamp = this.state.video.timestamp;
+      this.start_timestamp = this.state.video.timestamp - this.step_size;
       this.rewind();
       this.set_state({
-         video: { timestamp },
+         video: { timestamp: this.start_timestamp },
          primary_sub: { is_visible: true },
          secondary_sub: { is_visible: false },
       });
    }
 
-   private stepback_second(timestamp: number) {
-      this.end_timestamp = this.state.video.timestamp;
+   private stepback_second() {
+      this.start_timestamp = this.state.video.timestamp - this.step_size;
       this.rewind();
       this.set_state({
-         video: { timestamp },
+         video: { timestamp: this.start_timestamp },
          primary_sub: { is_visible: true },
          secondary_sub: { is_visible: true },
       });
@@ -54,18 +55,8 @@ export class PlayerController extends EventBus<Action, Partial<IState>> {
 
    timeupdate({ timestamp }: { timestamp: number; }) {
       this.state.video.timestamp = timestamp;
-      if (
-         this.start_timestamp <= this.state.video.timestamp &&
-         this.state.video.timestamp <= this.end_timestamp
-      ) { return; }
+      if (this.start_timestamp <= timestamp && timestamp <= this.end_timestamp) { return; }
       this.hide_subs();
-   }
-
-   onseeked({ timestamp }: { timestamp: number; }) {
-      if (timestamp === this.start_timestamp) { return; }
-      this.start_timestamp = 0;
-      this.end_timestamp = 0;
-      // this.hide_subs();
    }
 
    private hide_subs() {
@@ -84,11 +75,11 @@ export class PlayerController extends EventBus<Action, Partial<IState>> {
 
 type Action = 'state_change';
 
-interface IVideoState {
+interface IState extends IVisibilityState {
    video: { timestamp: number; };
 }
 
-interface IState extends IVideoState {
+interface IVisibilityState {
    primary_sub: { is_visible: boolean; },
    secondary_sub: { is_visible: boolean; },
 }

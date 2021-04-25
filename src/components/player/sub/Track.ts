@@ -2,35 +2,42 @@ import { ISubs } from '~/subs';
 
 export class SubTrackComponent {
    is_visible: boolean = false;
-   active_index: number = 0;
-
    constructor(private data: ISubs = []) { }
 
+   private last_timestamp: number = 0;
+   private active_index: number = 0;
+   private get active_sub() {
+      return this.data[this.active_index];
+   }
    get is_empty() {
       return this.data.length === 0;
    }
 
-   state_change(timestamp?: number, is_visible: boolean = this.is_visible) {
+   display(is_visible: boolean = this.is_visible) {
       this.is_visible = is_visible;
+   }
+
+   tick(timestamp: number) {
       if (!timestamp || this.is_empty) { return; }
-      const [_start, end, _txt] = this.data[this.active_index];
+      const is_rewind = timestamp < this.last_timestamp;
+      this.last_timestamp = timestamp;
+      if (is_rewind) {
+         this.seek();
+         return;
+      }
+      const [_, end] = this.active_sub;
       if (end < timestamp) { this.active_index += 1; }
    }
 
-   to_string(timestamp: number): string {
-      if (!this.is_visible || this.is_empty) { return ''; }
-      const [start, end, txt] = this.data[this.active_index];
-      console.log(timestamp, 'to_string', [start, end, txt]);
-      if (timestamp < start || end < timestamp) { return ''; }
+   to_string(): string {
+      if (!this.is_visible || this.is_empty) { return '&nbsp;'; }
+      const [start, end, txt] = this.active_sub;
+      if (this.last_timestamp < start || end < this.last_timestamp) { return '&nbsp;'; }
       return txt;
    }
 
-   seek(timestamp: number) {
-      if (!timestamp || this.is_empty) { return; }
-      this.active_index = search_index(this.data, timestamp);
-      console.log('for timestamp', timestamp, ' closest sub is ', this.data[this.active_index]);
-      console.log('another subs are', this.data[this.active_index - 1], this.data[this.active_index + 1]);
-      this.state_change(timestamp, false);
+   private seek() {
+      this.active_index = search_index(this.data, this.last_timestamp);
    }
 }
 

@@ -6,6 +6,10 @@
       "baseUrl": "./",
       "pretty": false,
       "strict": true,
+      "lib": [
+         "DOM",
+         "ESNext"
+      ],
       "paths": {
          "~/*": [
             "src/*"

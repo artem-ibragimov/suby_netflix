@@ -1,5 +1,5 @@
 import { EventBus } from 'src/core/EventBus';
-import { SubsComponent, IStateChange } from 'src/components/player/Subs';
+import { SubsComponent, IVisibleState } from 'src/components/player/Subs';
 
 export class PlayerComponent extends EventBus<Action, IEvent>{
    private _video_el!: HTMLVideoElement | null;
@@ -22,27 +22,19 @@ export class PlayerComponent extends EventBus<Action, IEvent>{
       if (!this._video_el) {
          this._video_el = document.querySelector<HTMLVideoElement>(this.video_el_selector);
          if (!this._video_el) { return null; }
-         this._video_el.onseeked = this.onseeked.bind(this);
          this._video_el.ontimeupdate = this.ontimeupdate.bind(this);
       }
       return this._video_el;
    }
 
-   state_change(state: Partial<IStateChange>) {
-      this.subs.state_change(state);
+   state_change(state: Partial<IVisibleState>) {
+      this.subs.display(state);
    }
 
    private ontimeupdate() {
       if (!this.video_el) { return; }
-      const state = { timestamp: this.video_el.currentTime };
-      this.dispatch('timeupdate', state);
-      this.subs.state_change({ video: state });
-   }
-
-   private onseeked() {
-      if (!this.video_el) { return; }
-      this.dispatch('onseeked', { timestamp: this.video_el.currentTime });
-      this.subs.seek(this.video_el.currentTime);
+      this.subs.tick(this.video_el.currentTime);
+      this.dispatch('timeupdate', { timestamp: this.video_el.currentTime });
    }
 }
 
@@ -50,4 +42,4 @@ interface IEvent {
    timestamp: number;
 }
 
-type Action = 'timeupdate' | 'onseeked';
+type Action = 'timeupdate';

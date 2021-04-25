@@ -8,7 +8,6 @@ window.onload = () => {
    const rewind = () => { document.querySelector<HTMLButtonElement>('.button-nfplayerBackTen')?.click(); };
    const player_ctrl = new PlayerController(rewind);
    const player_cmp = new PlayerComponent('div.VideoContainer video');
-   player_cmp.on('onseeked', player_ctrl.onseeked);
    player_cmp.on('timeupdate', player_ctrl.timeupdate);
    player_ctrl.on('state_change', player_cmp.state_change);
 

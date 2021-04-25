@@ -3,10 +3,10 @@
 function parse(text) {
     return text
         .split('\n')
-        .map((line) => /begin="(\d+).*end="(\d+).*>(.*)<\/[span|p]>/.exec(line))
+        .map((line) => /begin="(\d+)t" end="(\d+)t".*>([^[>|<|/]+)<.*/.exec(line))
         .filter((result) => result !== null)
         .filter((result) => result.length === 4)
-        .map(([_, start, end, txt]) => [Number(start) / 1000000, Number(end) / 1000000, txt]);
+        .map(([_, start, end, txt]) => [Number(start) / 10000000, Number(end) / 10000000, txt]);
 }
 
 // @ts-ignore
