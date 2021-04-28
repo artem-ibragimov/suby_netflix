@@ -24,6 +24,17 @@ export class PlayerController extends EventBus<Action, Partial<IVisibilityState>
       this.stepback_second = this.stepback_second.bind(this);
    }
 
+   reset() {
+      this.end_timestamp = 0;
+      this.start_timestamp = 0;
+      this.rewind_timeout = void 0;
+      this.state = {
+         video: { timestamp: 0 },
+         primary_sub: { is_visible: false },
+         secondary_sub: { is_visible: false },
+      };
+   }
+
    stepback() {
       if (this.end_timestamp < this.state.video.timestamp) {
          this.stepback_first();

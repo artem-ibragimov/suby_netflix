@@ -13,4 +13,11 @@ window.onload = () => {
 
    const user_actions = new UserActions();
    user_actions.on('stepback', player_ctrl.stepback);
+   history.pushState = function (...args) {
+      debugger;
+   };
+   window.addEventListener('popstate', () => {
+      player_cmp.reset();
+      player_ctrl.reset();
+   });
 };

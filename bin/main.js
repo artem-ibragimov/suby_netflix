@@ -30,7 +30,7 @@ class SubTrackComponent {
         this.active_index = 0;
     }
     get active_sub() {
-        return this.data[this.active_index];
+        return this.data[this.active_index] || [0, 0, ''];
     }
     get is_empty() {
         return this.data.length === 0;
@@ -94,7 +94,10 @@ function search_index(subs, timestamp, left_index = 0, right_index = subs.length
 // console.assert(search_index(test, 6) === 2);
 
 class SubsComponent {
-    constructor() {
+    constructor(display_warn, display_primary, display_secondary) {
+        this.display_warn = display_warn;
+        this.display_primary = display_primary;
+        this.display_secondary = display_secondary;
         this.primary_track = new SubTrackComponent();
         this.secondary_track = new SubTrackComponent();
         this.captions_disabled = true;
@@ -109,11 +112,16 @@ class SubsComponent {
                 }
             }
         });
-        this.warn_caption = this.create_caption_el('yellow');
-        this.secondary_caption = this.create_caption_el('#eee');
-        this.primary_caption = this.create_caption_el('#fff');
-        this.container = this.create_container([this.warn_caption, this.primary_caption, this.secondary_caption]);
-        document.body.appendChild(this.container);
+        this.init();
+    }
+    init() {
+        this.display_warn('Netflix SUBS: Choose primary captions or disable me');
+    }
+    reset() {
+        this.display_warn('');
+        this.captions_disabled = true;
+        this.primary_track = new SubTrackComponent();
+        this.secondary_track = new SubTrackComponent();
     }
     display({ primary_sub, secondary_sub }) {
         this.primary_track.display(primary_sub?.is_visible);
@@ -125,18 +133,8 @@ class SubsComponent {
         this.secondary_track.tick(timestamp);
         this.display_secondary(this.secondary_track.to_string());
     }
-    display_warn(txt) {
-        this.warn_caption.innerHTML = txt;
-    }
-    display_primary(txt) {
-        this.primary_caption.innerHTML = txt;
-    }
-    display_secondary(txt) {
-        this.secondary_caption.innerHTML = txt;
-    }
     add_subs(subs) {
-        if (this.captions_disabled) {
-            this.display_warn('Netflix SUBS: Choose primary captions or disable me');
+        if (this.captions_disabled && !this.primary_track.is_empty && !this.secondary_track.is_empty) {
             return;
         }
         if (!this.primary_track.is_empty && this.secondary_track.is_empty) {
@@ -147,6 +145,66 @@ class SubsComponent {
         this.primary_track = new SubTrackComponent(subs);
         this.secondary_track = new SubTrackComponent();
         this.display_warn('Netflix SUBS: Primary captions were added. Choose secondary ones!');
+    }
+}
+
+class PlayerComponent extends EventBus {
+    constructor(video_el_selector) {
+        super();
+        this.video_el_selector = video_el_selector;
+        this.display_warn = (txt) => {
+            if (!this.warn_caption) {
+                return;
+            }
+            this.warn_caption.innerHTML = txt;
+        };
+        this.display_primary = (txt) => {
+            if (!this.primary_caption) {
+                return;
+            }
+            this.primary_caption.innerHTML = txt;
+        };
+        this.display_secondary = (txt) => {
+            if (!this.secondary_caption) {
+                return;
+            }
+            this.secondary_caption.innerHTML = txt;
+        };
+        this.state_change = this.state_change.bind(this);
+        this.check_video_el = this.check_video_el.bind(this);
+        this.subs = new SubsComponent(this.display_warn, this.display_primary, this.display_secondary);
+        this.check_video_el();
+    }
+    reset() {
+        this._video_el = null;
+        this.container?.remove();
+        this.check_video_el();
+        this.subs.reset();
+    }
+    check_video_el() {
+        if (this.video_el) {
+            return;
+        }
+        setTimeout(this.check_video_el, 1000);
+    }
+    get video_el() {
+        if (!this._video_el) {
+            if (!location.href.includes('https://www.netflix.com/watch/')) {
+                return null;
+            }
+            this._video_el = document.querySelector(this.video_el_selector);
+            if (!this._video_el) {
+                return null;
+            }
+            this._video_el.ontimeupdate = this.ontimeupdate.bind(this);
+            this.warn_caption = this.create_caption_el('yellow');
+            this.secondary_caption = this.create_caption_el('#eee');
+            this.primary_caption = this.create_caption_el('#fff');
+            this.container = this.create_container([this.warn_caption, this.primary_caption, this.secondary_caption]);
+            document.body.appendChild(this.container);
+            this.subs.init();
+        }
+        return this._video_el;
     }
     create_container(childs) {
         const container = document.createElement('div');
@@ -167,34 +225,6 @@ class SubsComponent {
          font-family:Netflix Sans,Helvetica Nueue,Helvetica,Arial,sans-serif;
          font-weight:bolder`);
         return el;
-    }
-}
-
-class PlayerComponent extends EventBus {
-    constructor(video_el_selector) {
-        super();
-        this.video_el_selector = video_el_selector;
-        this.subs = new SubsComponent();
-        this.state_change = this.state_change.bind(this);
-        this.check_video_el = this.check_video_el.bind(this);
-        this.check_video_el();
-    }
-    ;
-    check_video_el() {
-        if (this.video_el) {
-            return;
-        }
-        setTimeout(this.check_video_el, 1000);
-    }
-    get video_el() {
-        if (!this._video_el) {
-            this._video_el = document.querySelector(this.video_el_selector);
-            if (!this._video_el) {
-                return null;
-            }
-            this._video_el.ontimeupdate = this.ontimeupdate.bind(this);
-        }
-        return this._video_el;
     }
     state_change(state) {
         this.subs.display(state);
@@ -238,6 +268,16 @@ class PlayerController extends EventBus {
         this.stepback = this.stepback.bind(this);
         this.timeupdate = this.timeupdate.bind(this);
         this.stepback_second = this.stepback_second.bind(this);
+    }
+    reset() {
+        this.end_timestamp = 0;
+        this.start_timestamp = 0;
+        this.rewind_timeout = void 0;
+        this.state = {
+            video: { timestamp: 0 },
+            primary_sub: { is_visible: false },
+            secondary_sub: { is_visible: false },
+        };
     }
     stepback() {
         if (this.end_timestamp < this.state.video.timestamp) {
@@ -297,4 +337,11 @@ window.onload = () => {
     player_ctrl.on('state_change', player_cmp.state_change);
     const user_actions = new UserActions();
     user_actions.on('stepback', player_ctrl.stepback);
+    history.pushState = function (...args) {
+        debugger;
+    };
+    window.addEventListener('popstate', () => {
+        player_cmp.reset();
+        player_ctrl.reset();
+    });
 };

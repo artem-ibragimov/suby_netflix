@@ -7,7 +7,7 @@ export class SubTrackComponent {
    private last_timestamp: number = 0;
    private active_index: number = 0;
    private get active_sub() {
-      return this.data[this.active_index];
+      return this.data[this.active_index] || [0, 0, ''];
    }
    get is_empty() {
       return this.data.length === 0;
