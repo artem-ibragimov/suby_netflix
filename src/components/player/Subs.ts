@@ -10,22 +10,26 @@ export class SubsComponent {
       private display_warn: (txt: string) => void,
       private display_primary: (txt: string) => void,
       private display_secondary: (txt: string) => void,
-      ) {
+   ) {
       this.display = this.display.bind(this);
       // @ts-ignore
       chrome.runtime.onMessage.addListener(this.add_subs.bind(this));
       document.addEventListener('click', (e) => {
-         if ((<HTMLElement> e.target).classList.contains('track')) {
-            this.captions_disabled = (<HTMLElement> e.target).innerText === 'Off';
+         const li = (<HTMLElement> e.target).closest('li');
+         if (!li) { return; }
+         const type = li.getAttribute('data-uia');
+         if (!type) { return; }
+         if (type.includes("subtitle-item")) {
+            this.captions_disabled = (type === "subtitle-item-selected-Off" || type === "subtitle-item-Off");
             if (this.captions_disabled && !this.primary_track.is_empty && !this.secondary_track.is_empty) {
                this.display_warn('');
             }
          }
       });
-      this.init()
+      this.init();
    }
 
-   init(){
+   init() {
       this.display_warn('Netflix SUBS: Choose primary captions or disable me');
 
    }

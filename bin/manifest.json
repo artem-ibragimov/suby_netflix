@@ -1,12 +1,15 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "author": "artem.ibragimov",
     "name": "Netflix subs",
     "description": "Adaptive subs for Netflix",
-    "version": "0.0.1",
+    "version": "0.0.3",
     "permissions": [
-        "webRequest",
-        "<all_urls>"
+        "webRequest"
+    ],
+    "host_permissions": [
+        "https://www.netflix.com/",
+        "https://*.oca.nflxvideo.net/"
     ],
     "icons": {
         "16": "./asset/i16.png",
@@ -16,10 +19,7 @@
         "225": "./asset/i225.png"
     },
     "background": {
-        "scripts": [
-            "background.js"
-        ],
-        "persistent": true
+        "service_worker": "background.js"
     },
     "content_scripts": [
         {
