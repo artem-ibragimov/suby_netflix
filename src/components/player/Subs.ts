@@ -12,7 +12,6 @@ export class SubsComponent {
       private display_secondary: (txt: string) => void,
    ) {
       this.display = this.display.bind(this);
-      // @ts-ignore
       chrome.runtime.onMessage.addListener(this.add_subs.bind(this));
       document.addEventListener('click', (e) => {
          const li = (<HTMLElement> e.target).closest('li');
@@ -31,7 +30,6 @@ export class SubsComponent {
 
    init() {
       this.display_warn('Netflix SUBS: Choose primary captions or disable me');
-
    }
 
    reset() {

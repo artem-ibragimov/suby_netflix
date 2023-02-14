@@ -3,7 +3,7 @@
     "author": "artem.ibragimov",
     "name": "Netflix subs",
     "description": "Adaptive subs for Netflix",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "permissions": [
         "webRequest"
     ],

@@ -5,9 +5,8 @@ export class PlayerController extends EventBus<Action, Partial<IVisibilityState>
    /** Step size in seconds */
    private step_size: number = 10;
    /** Timestamp before rewind */
-   private end_timestamp: number = 0;
-   private start_timestamp: number = 0;
-   private rewind_timeout?: NodeJS.Timeout;
+   private last_timestamp: number = 0;
+   private begin_timestamp: number = 0;
    private state: IState = {
       video: { timestamp: 0 },
       primary_sub: { is_visible: false },
@@ -25,9 +24,8 @@ export class PlayerController extends EventBus<Action, Partial<IVisibilityState>
    }
 
    reset() {
-      this.end_timestamp = 0;
-      this.start_timestamp = 0;
-      this.rewind_timeout = void 0;
+      this.last_timestamp = 0;
+      this.begin_timestamp = 0;
       this.state = {
          video: { timestamp: 0 },
          primary_sub: { is_visible: false },
@@ -36,41 +34,44 @@ export class PlayerController extends EventBus<Action, Partial<IVisibilityState>
    }
 
    stepback() {
-      if (this.end_timestamp < this.state.video.timestamp) {
+      if (this.begin_timestamp > this.state.video.timestamp) { return; }
+      if (this.last_timestamp < this.state.video.timestamp) {
          this.stepback_first();
          return;
       }
-      this.stepback_second();
+      if (this.state.primary_sub.is_visible) {
+         this.stepback_second();
+      }
    }
 
    private stepback_first() {
-      this.end_timestamp = this.state.video.timestamp;
-      this.start_timestamp = this.state.video.timestamp - this.step_size;
+      this.update_timestamps();
       this.rewind();
       this.set_state({
-         video: { timestamp: this.start_timestamp },
+         video: { timestamp: this.begin_timestamp },
          primary_sub: { is_visible: true },
          secondary_sub: { is_visible: false },
       });
    }
 
    private stepback_second() {
-      this.start_timestamp = this.state.video.timestamp - this.step_size;
+      this.update_timestamps();
       this.rewind();
       this.set_state({
-         video: { timestamp: this.start_timestamp },
+         video: { timestamp: this.begin_timestamp },
          primary_sub: { is_visible: true },
          secondary_sub: { is_visible: true },
       });
    }
 
-   timeupdate({ timestamp }: { timestamp: number; }) {
-      this.state.video.timestamp = timestamp;
-      if (this.start_timestamp <= timestamp && timestamp <= this.end_timestamp) { return; }
-      this.hide_subs();
+   private update_timestamps() {
+      this.last_timestamp = Math.ceil(this.state.video.timestamp) + 1;
+      this.begin_timestamp = Math.floor(this.state.video.timestamp - this.step_size) - 1;
    }
 
-   private hide_subs() {
+   timeupdate({ timestamp }: { timestamp: number; }) {
+      this.state.video.timestamp = timestamp;
+      if (this.begin_timestamp <= timestamp && timestamp <= this.last_timestamp) { return; }
       if (!this.state.primary_sub.is_visible && !this.state.secondary_sub.is_visible) { return; }
       this.set_state({
          primary_sub: { is_visible: false },

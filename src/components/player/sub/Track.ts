@@ -22,11 +22,13 @@ export class SubTrackComponent {
       const is_rewind = timestamp < this.last_timestamp;
       this.last_timestamp = timestamp;
       if (is_rewind) {
-         this.seek();
+         this.active_index = search_index(this.data, this.last_timestamp);
          return;
       }
       const [_, end] = this.active_sub;
-      if (end < timestamp) { this.active_index += 1; }
+      if (end < timestamp) {
+         this.active_index += 1;
+      }
    }
 
    to_string(): string {
@@ -34,10 +36,6 @@ export class SubTrackComponent {
       const [start, end, txt] = this.active_sub;
       if (this.last_timestamp < start || end < this.last_timestamp) { return '&nbsp;'; }
       return txt;
-   }
-
-   private seek() {
-      this.active_index = search_index(this.data, this.last_timestamp);
    }
 }
 

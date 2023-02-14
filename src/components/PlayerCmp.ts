@@ -67,7 +67,7 @@ export class PlayerComponent extends EventBus<Action, IEvent>{
       container.style.left = '25%';
       container.style.width = '50%';
       container.style.textAlign = 'center';
-      container.style.zIndex = '999999';
+      container.style.zIndex = '';
       childs.forEach((c) => { container.appendChild(c); });
       return container;
    }
